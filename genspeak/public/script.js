@@ -55,6 +55,7 @@ async function doTranslate(source, target) {
       return;
     }
 
+    console.log("[GenSpeak]", { source, target, _debug: data._debug });
     outputText.textContent = data.translated;
     output.hidden = false;
 

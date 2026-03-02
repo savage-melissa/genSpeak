@@ -48,8 +48,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const translated = await translate(text.trim(), sourceGeneration || "plain", targetGeneration);
-    res.json({ translated });
+    const src = sourceGeneration || "plain";
+    const translated = await translate(text.trim(), src, targetGeneration);
+    res.json({ translated, _debug: { source: src, target: targetGeneration } });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Translation failed";
     res.status(500).json({ error: message });

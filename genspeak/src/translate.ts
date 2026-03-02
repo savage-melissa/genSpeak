@@ -23,32 +23,46 @@ export async function translate(
     throw new Error("Source and target generation must be different");
   }
 
-  const targetStyle = targetGeneration === "plain"
-    ? "Plain, clear, everyday English. No slang, no jargon, no generational flair. Just straightforward language anyone can understand."
-    : GENERATIONS[targetGeneration];
-
-  if (!targetStyle) {
-    throw new Error(`Unknown generation: ${targetGeneration}`);
-  }
-
-  const sourceContext = sourceGeneration === "plain"
-    ? "plain everyday English"
-    : GENERATIONS[sourceGeneration]
-      ? `${sourceGeneration} generational style`
-      : sourceGeneration;
+  const isDecoding = targetGeneration === "plain";
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-  const prompt = `The following text is written in ${sourceContext}. Rewrite it in this style:
+  let prompt: string;
+
+  if (isDecoding) {
+    const sourceStyle = GENERATIONS[sourceGeneration];
+    if (!sourceStyle) {
+      throw new Error(`Unknown generation: ${sourceGeneration}`);
+    }
+
+    prompt = `You are a translator that converts generational slang into plain, clear English.
+
+The following text was written by someone who speaks in the style of: ${sourceStyle}
+
+Your job is to DECODE this text. Replace all slang, generational expressions, and informal language with plain, standard English equivalents. The result should be something a parent or grandparent would easily understand.
+
+IMPORTANT: Do NOT add any slang. Do NOT rewrite it in any generational style. Output plain, clear, everyday English ONLY.
+
+Return ONLY the decoded text. No quotes, no explanation, no commentary.
+
+Text to decode: ${text}`;
+  } else {
+    const targetStyle = GENERATIONS[targetGeneration];
+    if (!targetStyle) {
+      throw new Error(`Unknown generation: ${targetGeneration}`);
+    }
+
+    prompt = `Rewrite the following text as if it were said by someone from this generation:
 
 ${targetStyle}
 
-The rewrite should sound natural — like something a real person would actually say. Capture the tone, attitude, and vocabulary authentically. Don't force slang where it doesn't fit. Preserve the original meaning.
+The rewrite should sound natural — like something a real person from that generation would actually say. Capture the tone, attitude, and vocabulary authentically. Don't force slang where it doesn't fit. Preserve the original meaning.
 
 Return ONLY the rewritten text. No quotes, no explanation, no commentary.
 
 Text: ${text}`;
+  }
 
   const result = await model.generateContent(prompt);
   const response = result.response.text().trim();
