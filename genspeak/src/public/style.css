@@ -83,15 +83,28 @@ textarea#input:focus {
   box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.15);
 }
 
-/* ---------- Controls Row ---------- */
+/* ---------- Character Count ---------- */
+.char-count {
+  text-align: right;
+  font-size: 0.75rem;
+  color: #52525b;
+  margin-top: -0.5rem;
+}
+
+.char-count .over-limit {
+  color: #f87171;
+  font-weight: 600;
+}
+
+/* ---------- Controls ---------- */
 .controls {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
-  align-items: stretch;
 }
 
 select#generation {
-  flex: 1;
+  width: 100%;
   padding: 0.6rem 0.75rem;
   font-family: inherit;
   font-size: 0.9rem;
@@ -114,14 +127,18 @@ select#generation:focus {
   box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.15);
 }
 
-/* ---------- Translate Button ---------- */
-button#translate-btn {
-  padding: 0.6rem 1.5rem;
+/* ---------- Buttons ---------- */
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.buttons button {
+  flex: 1;
+  padding: 0.75rem 1rem;
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #fff;
-  background: #6d5dfc;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -129,20 +146,53 @@ button#translate-btn {
   transition: background 0.2s ease, opacity 0.2s ease;
 }
 
-button#translate-btn:hover {
+.btn-translate {
+  color: #fff;
+  background: #6d5dfc;
+}
+
+.btn-translate:hover {
   background: #5b4ae0;
 }
 
-button#translate-btn:active {
+.btn-translate:active {
   background: #4c3dcf;
 }
 
+.btn-decode {
+  color: #e4e4e7;
+  background: #27272a;
+  border: 1px solid #3f3f46 !important;
+}
+
+.btn-decode:hover {
+  background: #3f3f46;
+}
+
+.btn-decode:active {
+  background: #52525b;
+}
+
 /* Loading / disabled state */
-button#translate-btn:disabled {
+.buttons button:disabled {
   background: #3f3f46;
   color: #71717a;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+.buttons button.loading {
+  background: linear-gradient(270deg, #6d5dfc, #3f3f46, #6d5dfc);
+  background-size: 400% 100%;
+  animation: shimmer 2s ease infinite;
+  color: #e4e4e7;
+  opacity: 1;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
 }
 
 /* ---------- Output Box ---------- */
@@ -197,12 +247,7 @@ button#translate-btn:disabled {
     padding: 1rem;
   }
 
-  .controls {
+  .buttons {
     flex-direction: column;
-  }
-
-  button#translate-btn {
-    width: 100%;
-    padding: 0.75rem;
   }
 }

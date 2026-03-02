@@ -1,18 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GenSpeak</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LB7CVJ5L8L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-LB7CVJ5L8L');
+  </script>
 </head>
+
 <body>
   <main>
     <h1>GenSpeak</h1>
-    <p class="subtitle">Translate anything into generational speak</p>
+    <p class="subtitle">Translate anything into generational speak (and help decode texts from your kids)</p>
 
     <div class="translator">
-      <textarea id="input" placeholder="Type something to translate..." rows="4"></textarea>
+      <textarea id="input" placeholder="Type something to translate..." rows="4" maxlength="500"></textarea>
+      <div class="char-count"><span id="char-current">0</span> / 500</div>
 
       <div class="controls">
         <select id="generation">
@@ -23,7 +34,10 @@
           <option value="boomer">Boomer</option>
           <option value="corporate">Corporate</option>
         </select>
-        <button id="translate-btn">Translate</button>
+        <div class="buttons">
+          <button id="translate-btn" class="btn-translate">Translate →</button>
+          <button id="decode-btn" class="btn-decode">← Decode</button>
+        </div>
       </div>
 
       <div id="output" class="output" hidden>
@@ -38,4 +52,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>

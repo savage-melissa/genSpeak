@@ -1,16 +1,17 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GENERATIONS: Record<string, string> = {
-  "gen-alpha": "Gen Alpha (born 2013+). Use slang like 'skibidi', 'rizz', 'no cap', 'bussin', 'sigma', 'gyatt', 'fanum tax', 'ohio'. Very informal, meme-heavy, chaotic energy.",
-  "gen-z": "Gen Z (born 1997-2012). Use slang like 'slay', 'bestie', 'it's giving', 'understood the assignment', 'rent free', 'main character', 'no thoughts just vibes'. Casual, ironic, self-aware humor.",
-  "millennial": "Millennial (born 1981-1996). Use phrases like 'adulting', 'I can't even', 'it me', 'living my best life', 'this is everything', 'dead', 'I'm screaming'. Self-deprecating humor, pop culture references.",
-  "gen-x": "Gen X (born 1965-1980). Use a sarcastic, independent, low-key tone. References to 'whatever', 'as if', pragmatic and understated. Not trying too hard.",
-  "boomer": "Baby Boomer (born 1946-1964). Use formal, straightforward language. Proper grammar, complete sentences. May include phrases like 'back in my day', 'kids these days'. Earnest and direct.",
-  "corporate": "Corporate/business speak. Use jargon like 'synergy', 'circle back', 'align on', 'move the needle', 'low-hanging fruit', 'deep dive', 'leverage', 'touch base', 'action items'. Buzzword-heavy, sounds important but says little.",
+  "gen-alpha": "Gen Alpha (born 2013+). Very online, meme-heavy, chaotic energy. Speak like a kid who grew up on TikTok and YouTube shorts.",
+  "gen-z": "Gen Z (born 1997-2012). Casual, ironic, self-aware humor. Internet-native tone with a mix of sincerity and absurdism.",
+  "millennial": "Millennial (born 1981-1996). Self-deprecating humor, pop culture references, earnest but anxious energy.",
+  "gen-x": "Gen X (born 1965-1980). Sarcastic, independent, low-key. Pragmatic and understated — not trying too hard.",
+  "boomer": "Baby Boomer (born 1946-1964). Formal, straightforward, proper grammar. Earnest and direct, values respect and tradition.",
+  "corporate": "Corporate/business speak. Buzzword-heavy, sounds important but says very little. The tone of an email from middle management.",
 };
 
 export async function translate(
   text: string,
+  sourceGeneration: string,
   targetGeneration: string
 ): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -18,26 +19,36 @@ export async function translate(
     throw new Error("GEMINI_API_KEY is not set");
   }
 
-  const generationStyle = GENERATIONS[targetGeneration];
-  if (!generationStyle) {
+  if (sourceGeneration === targetGeneration) {
+    throw new Error("Source and target generation must be different");
+  }
+
+  const targetStyle = targetGeneration === "plain"
+    ? "Plain, clear, everyday English. No slang, no jargon, no generational flair. Just straightforward language anyone can understand."
+    : GENERATIONS[targetGeneration];
+
+  if (!targetStyle) {
     throw new Error(`Unknown generation: ${targetGeneration}`);
   }
 
+  const sourceContext = sourceGeneration === "plain"
+    ? "plain everyday English"
+    : GENERATIONS[sourceGeneration]
+      ? `${sourceGeneration} generational style`
+      : sourceGeneration;
+
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-  const prompt = `You are a translator that converts text into a specific generational speaking style.
+  const prompt = `The following text is written in ${sourceContext}. Rewrite it in this style:
 
-Target style: ${generationStyle}
+${targetStyle}
 
-Rules:
-- Preserve the original meaning of the text
-- Transform vocabulary, tone, and phrasing to match the target generation
-- Only return the translated text, nothing else — no quotes, no explanation
-- Keep roughly the same length as the original
+The rewrite should sound natural — like something a real person would actually say. Capture the tone, attitude, and vocabulary authentically. Don't force slang where it doesn't fit. Preserve the original meaning.
 
-Text to translate:
-${text}`;
+Return ONLY the rewritten text. No quotes, no explanation, no commentary.
+
+Text: ${text}`;
 
   const result = await model.generateContent(prompt);
   const response = result.response.text().trim();
