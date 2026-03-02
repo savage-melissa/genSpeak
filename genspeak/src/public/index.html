@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GenSpeak</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>GenSpeak</h1>
+    <p class="subtitle">Translate anything into generational speak</p>
+
+    <div class="translator">
+      <textarea id="input" placeholder="Type something to translate..." rows="4"></textarea>
+
+      <div class="controls">
+        <select id="generation">
+          <option value="gen-alpha">Gen Alpha</option>
+          <option value="gen-z">Gen Z</option>
+          <option value="millennial">Millennial</option>
+          <option value="gen-x">Gen X</option>
+          <option value="boomer">Boomer</option>
+          <option value="corporate">Corporate</option>
+        </select>
+        <button id="translate-btn">Translate</button>
+      </div>
+
+      <div id="output" class="output" hidden>
+        <p id="output-text"></p>
+      </div>
+
+      <div id="error" class="error" hidden>
+        <p id="error-text"></p>
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
