@@ -21,7 +21,7 @@ app.use(helmet({
   },
 }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "..", "public")));
 
 const translateLimiter = rateLimit({
   windowMs: 60 * 1000,
