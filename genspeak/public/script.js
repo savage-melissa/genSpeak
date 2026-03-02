@@ -58,6 +58,8 @@ async function doTranslate(source, target) {
     outputText.textContent = data.translated;
     output.hidden = false;
 
+    addToHistory({ mode, generation: gen, input: text, output: data.translated });
+
     trackEvent("translation", {
       mode,
       generation: gen,
@@ -130,3 +132,86 @@ function stopLoadingAnimation() {
   translateBtn.textContent = "Translate →";
   decodeBtn.textContent = "← Decode";
 }
+
+// ── History ──
+
+const HISTORY_KEY = "genspeak_history";
+const MAX_HISTORY = 20;
+const historySection = document.getElementById("history-section");
+const historyList = document.getElementById("history-list");
+const clearHistoryBtn = document.getElementById("clear-history");
+
+const GENERATION_LABELS = {
+  "gen-alpha": "Gen Alpha",
+  "gen-z": "Gen Z",
+  "millennial": "Millennial",
+  "gen-x": "Gen X",
+  "boomer": "Boomer",
+  "corporate": "Corporate",
+  "plain": "Plain English",
+};
+
+function getHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(history) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
+
+function addToHistory(entry) {
+  const history = getHistory();
+  history.unshift({
+    ...entry,
+    timestamp: Date.now(),
+  });
+  if (history.length > MAX_HISTORY) history.length = MAX_HISTORY;
+  saveHistory(history);
+  renderHistory();
+}
+
+function renderHistory() {
+  const history = getHistory();
+  if (history.length === 0) {
+    historySection.hidden = true;
+    return;
+  }
+
+  historySection.hidden = false;
+  historyList.innerHTML = "";
+
+  history.forEach((entry) => {
+    const item = document.createElement("div");
+    item.className = "history-item";
+
+    const label = entry.mode === "translate"
+      ? `→ ${GENERATION_LABELS[entry.generation] || entry.generation}`
+      : `${GENERATION_LABELS[entry.generation] || entry.generation} → Plain`;
+
+    item.innerHTML = `
+      <div class="history-meta">
+        <span class="history-mode ${entry.mode}">${entry.mode === "translate" ? "Translate" : "Decode"}</span>
+        <span class="history-gen">${label}</span>
+      </div>
+      <p class="history-input"></p>
+      <p class="history-output"></p>
+    `;
+
+    item.querySelector(".history-input").textContent = entry.input;
+    item.querySelector(".history-output").textContent = entry.output;
+
+    historyList.appendChild(item);
+  });
+}
+
+clearHistoryBtn.addEventListener("click", () => {
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+});
+
+// Load history on page load
+renderHistory();
